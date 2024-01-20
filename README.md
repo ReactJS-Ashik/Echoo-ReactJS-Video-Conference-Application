@@ -59,7 +59,7 @@ This is a web application designed using ReactJS &amp; NodeJS. The element desig
 
 
 # Application first look:
-still under development
+_Still under development_
 ## Light Mode
 ![image](https://github.com/ReactJS-Ashik/Echoo-ReactJS-Video-Conference-Application/assets/41672214/69a368cb-020c-4fb1-9569-7a2da2db9fab)
 
@@ -151,9 +151,9 @@ Don't forget to give the project a star! Thanks again!
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@gmail](mailto:ashikthulungrai7@gmail.com) - ashikthulungrai7@gmail.com
+Mail me - [@gmail](mailto:ashikthulungrai7@gmail.com): ashikthulungrai7@gmail.com
 
-Project Link: [https://github.com/Ashik_Rai/[ProjectName]](https://github.com/ReactJS-Ashik/Echoo-ReactJS-Video-Conference-Application)
+Project Link: [https://github.com/Ashik_Rai/Echoo](https://github.com/ReactJS-Ashik/Echoo-ReactJS-Video-Conference-Application)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
