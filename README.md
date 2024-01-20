@@ -2,25 +2,22 @@
 
 <!-- PROJECT LOGO -->
 <br />
-<div align="center">
-  <a href="#">
-    <img stc=https://github.com/ReactJS-Ashik/Echoo-ReactJS-Video-Conference-Application/assets/41672214/2ed75fb5-466b-4565-b021-374f6916928a />
-  </a>
-
-  <h3 align="center">[ProjectName]</h3>
-
+<div align="center">  
+ <img src="https://github.com/ReactJS-Ashik/Echoo-ReactJS-Video-Conference-Application/assets/41672214/2087819d-0458-42b2-85f0-bcdb135cb478" />
+  <h3 align="center">Echoo-ReactJS-Video-Conference-Application</h3>
   <p align="center">
     A Video Conference Web Applications
     <br />
     This project was made as an independent pet project, to enhance and showcase my strong grip on ReactJS, NodeJS, Redux, etc
     <br/>
   </p>
+  
+   [![Medium][medium]][medium-url] <a href="https://medium.com/@ashikthulungrai7"><strong>Read My Medium Blogs »</strong></a>
 </div>
-  [![React][React.js]][React-url] 
-  <a href="https://medium.com/@ashikthulungrai7"><strong>Read My Medium Blogs »</strong></a>
-  <br />
-  <br />
-<div>
+
+<br />
+<br />
+<div align="center"> 
   <p>
     <a href="https://github.com/ReactJS-Ashik/Echoo-ReactJS-Video-Conference-Application">View Demo</a>
     ·
@@ -57,14 +54,17 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-[ProjectName]
 # Echoo-ReactJS-Video-Conference-Application
 This is a web application designed using ReactJS &amp; NodeJS. The element design is inspired by MaterialUI & Ant Design. Though the application is just for learning & teaching purposes but the implementation and code quality are very professional. You will learn many details and key elements of the React and Node being leveraged.
 
 
 # Application first look:
 still under development
-![image](https://github.com/ReactJS-Ashik/Echoo-ReactJS-Video-Conference-Application/assets/41672214/1d5e0d04-c1cf-4eb9-a237-16ce816435c7)
+## Light Mode
+![image](https://github.com/ReactJS-Ashik/Echoo-ReactJS-Video-Conference-Application/assets/41672214/69a368cb-020c-4fb1-9569-7a2da2db9fab)
+
+## Dark Mode
+![image](https://github.com/ReactJS-Ashik/Echoo-ReactJS-Video-Conference-Application/assets/41672214/7ab2a7f9-a62b-442c-9957-a23bc696cbe3)
 
 
 ### Built With
