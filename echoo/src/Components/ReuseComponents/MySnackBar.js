@@ -29,7 +29,7 @@ export default function MySnackBar(props) {
         anchorOrigin={{vertical: props.vertical, horizontal: props.horizontal}}
         severity="success"
         open={props.open}
-        autoHideDuration={500}
+        autoHideDuration={1000}
         onClose={props.handleClose}
         message={props.message}
         action={action}

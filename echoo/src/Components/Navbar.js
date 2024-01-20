@@ -9,24 +9,24 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { PropTypes } from 'prop-types';
+
 // importing Icons
+import ListItemIcon from '@mui/material/ListItemIcon';
 import AppIcon from '@mui/icons-material/GraphicEq';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
-// React Components
+
+// My React Components
 import ResponsiveAppBar from './MyAppBar';
 import { MenuUnfoldOutlined } from '@ant-design/icons';
 import CollapsedBreadcrumbs from './ReuseComponents/MyBreadCrumbs';
 
-
-
-const darkColour= '#00152a';
-const darkColour_Shade1= '#173757';
-const lightColour= 'white';
-const lightColour_Shade1= '#f6f6f6';
+// Constants
+import { LightTheme, whiteColour, darkColour,
+        lightColour, lightColour_Shade1, darkColour_Shade1,
+        TabDark, activeTabDark, grayColor, transparent, sideTabTextColor } from "../Utils/Constants"
 
 
 // ========= This is for Drawer
@@ -63,12 +63,12 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 }));
 
 const DrawerContainer = styled(Box)(({ theme}) => ({
-  backgroundColor: theme.palette.mode === 'light'? lightColour_Shade1: darkColour,
+  backgroundColor: theme.palette.mode ===  LightTheme ? lightColour_Shade1: darkColour,
   flexGrow: 1,
   height: '100vh',
   overflowY: 'auto',
   overflowX: 'hidden',
-  borderLeft: theme.palette.mode === 'light' ? '3px solid gray' : '3px solid red',
+  borderLeft: theme.palette.mode === LightTheme ? `3px solid ${grayColor}` : '3px solid red',
 }));
 
 const DrawerContent = styled(Box, { shouldForwardProp: (prop) => prop !== 'open' })(
@@ -78,8 +78,8 @@ const DrawerContent = styled(Box, { shouldForwardProp: (prop) => prop !== 'open'
   margin: '1% 2% 2% 2%',
   padding: '2% 2% 0% 2%',
   borderRadius: '14px 14px 14px 14px',
-  background: theme.palette.mode === 'light'? lightColour: darkColour_Shade1,
-  color: theme.palette.mode === 'light'? darkColour: lightColour,
+  background: theme.palette.mode ===  LightTheme ? lightColour: darkColour_Shade1,
+  color: theme.palette.mode ===  LightTheme ? darkColour: lightColour,
 
   overflow: 'auto',
   // overflowX: 'hidden',
@@ -109,13 +109,13 @@ const DrawerListItem = styled(ListItem, { shouldForwardProp: (prop) => prop !== 
       width: '90%',
       margin: 'auto',
       marginBottom: '5%',
-      color: '#8eacd6',
+      color: sideTabTextColor,
       background: 'inherit',
       borderRadius: '10px 10px 10px 10px',
 
       ...(active && {
-        color: 'white',
-        background: '#1678ff',
+        color: whiteColour,
+        background: activeTabDark,
       }),
       ...(open && {
         marginBottom: '3%'
@@ -126,8 +126,8 @@ const DrawerListItem = styled(ListItem, { shouldForwardProp: (prop) => prop !== 
       }),
 
       '&:hover': {
-        color: 'white',
-        background: active ? '#1678ff' :'#0e356a',
+        color: whiteColour,
+        background: active ? activeTabDark : TabDark,
         transition: '0.3s'
       },
     }),
@@ -136,6 +136,7 @@ const DrawerListItem = styled(ListItem, { shouldForwardProp: (prop) => prop !== 
 export default function MyNavBar(props) {
   const [open, setOpen] = React.useState(true);
   const [activeBtn, setactiveBtn] = React.useState('');
+  const [SideNavItemList, setSideNavItemList ]= React.useState(['Inbox', 'Starred', 'Send email', 'Drafts']);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -150,12 +151,12 @@ export default function MyNavBar(props) {
       <CssBaseline />
       <ResponsiveAppBar  {...props} openDrawer={open} handleDrawerOpen={handleDrawerOpen} handleDrawerClose={handleDrawerClose} ></ResponsiveAppBar>
       <Drawer variant="permanent" open={open}>
-        <DrawerHeader sx={{ backgroundColor: '#00152a'}}>
-          <IconButton onClick={e=>{setOpen(!open)}} sx={{ ':hover': { background: 'transparent'} }} >
-            <IconButton sx={{ color: 'white', display: { xs: open ? 'none':'flex', md: 'none' }, mr: open ? 1 : 0 }}>
+        <DrawerHeader sx={{ backgroundColor: darkColour}}>
+          <div onClick={e=>{setOpen(!open)}} style={{ ':hover': { background: transparent}, cursor: 'pointer', display: 'flex'}} >
+            <IconButton sx={{ color: whiteColour, display: { xs: open ? 'none':'flex', md: 'none' }, mr: open ? 1 : 0 }}>
               <MenuUnfoldOutlined />
             </IconButton>
-            <AppIcon fontSize={open ? 'medium' : 'large'} sx={{ color: 'white', display: { xs: open ? 'flex':'none', md: 'flex' }, mr: open ? 1 : 0 }} />
+            <AppIcon fontSize={open ? 'medium' : 'large'} sx={{ color: whiteColour, display: { xs: open ? 'flex':'none', md: 'flex' }, mr: open ? 1 : 0 }} />
             { open ?
                 <Typography
                     variant="h6"
@@ -168,7 +169,7 @@ export default function MyNavBar(props) {
                         fontFamily: 'monospace',
                         fontWeight: 700,
                         letterSpacing: '.3rem',
-                        color: 'white',
+                        color: whiteColour,
                         textDecoration: 'none',
                     }}
                 >
@@ -177,11 +178,11 @@ export default function MyNavBar(props) {
                 :
                 null
             }
-          </IconButton>
+          </div>
         </DrawerHeader>
         {/* <Divider /> */}
-        <List sx={{ backgroundColor: '#00152a'}}>
-          {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
+        <List sx={{ backgroundColor: darkColour}}>
+          {SideNavItemList.map((text, index) => (
             <DrawerListItem key={text} disablePadding open={open} active={activeBtn===text} onClick={e=>{setactiveBtn(text)}}>
               <ListItemButton
                 sx={{
@@ -206,8 +207,9 @@ export default function MyNavBar(props) {
           ))}
         </List>
         <Divider />
-        <List sx={{ backgroundColor: '#00152a', height: '100%'}}>
-          {['All mail', 'Trash', 'Spam'].map((text, index) => (
+        <List sx={{ backgroundColor: darkColour, height: '100%'}}>
+          {/* {['All mail', 'Trash', 'Spam'].map((text, index) => ( */}
+          {SideNavItemList.map((text, index) => (
             <DrawerListItem key={text} disablePadding open={open} active={activeBtn===text} onClick={e=>{setactiveBtn(text)}}>
               <ListItemButton
                 sx={{
@@ -378,12 +380,9 @@ export default function MyNavBar(props) {
 
 
 MyNavBar.propTypes = {
-  appName: PropTypes.string.isRequired,
-  setChecked: PropTypes.func,
-  checked: PropTypes.bool,
+  appName: PropTypes.string.isRequired
 }
 
 MyNavBar.defaultProps = {
-  appName: "My App Name",
-  checked: true,
+  appName: "My App Name"
 }
