@@ -13,7 +13,7 @@ import { DarkTheme, LightTheme } from './Utils/Constants'
 
 function App() {
   const appName= "Echoo"
-  const AppTheme= useSelector((state) => state.themeStyle)
+  const AppTheme= useSelector((state) => state.system.themeStyle)
 
   // Define light and dark themes
   const createLightTheme = createTheme({

@@ -22,7 +22,7 @@ export default function MySwitch(props) {
 
     useEffect(() => {
         dispatch(setAppTheme({themeStyle: checked ? LightTheme : DarkTheme})) 
-    }, [checked])
+    }, [checked, dispatch])
 
     return (
     <Space direction="vertical" style={{marginRight: '1%'}}>

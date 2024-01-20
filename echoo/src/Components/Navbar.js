@@ -15,22 +15,22 @@ import { PropTypes } from 'prop-types';
 // importing Icons
 import ListItemIcon from '@mui/material/ListItemIcon';
 import AppIcon from '@mui/icons-material/GraphicEq';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
+import {MenuUnfoldOutlined } from '@ant-design/icons';
 
 // My React Components
 import ResponsiveAppBar from './MyAppBar';
-import { MenuUnfoldOutlined } from '@ant-design/icons';
 import CollapsedBreadcrumbs from './ReuseComponents/MyBreadCrumbs';
+import getIcon from "../Utils/IconProvider";
+import getSideNavMenu, {SideNavSocialMenu} from "../Utils/SideNavMenuProvider"
 
 // Constants
-import { LightTheme, whiteColour, darkColour,
-        lightColour, lightColour_Shade1, darkColour_Shade1,
-        TabDark, activeTabDark, grayColor, transparent, sideTabTextColor } from "../Utils/Constants"
+import { LightTheme, whiteColour, darkColour, lightColour, lightColour_Shade1,
+        darkColour_Shade1,hoverTabDark, activeTabDark, grayColor, transparent,
+        sideTabTextColor, drawerWidth, pages } from "../Utils/Constants"
 
-
-// ========= This is for Drawer
-const drawerWidth = 240;
+// Redux Imports
+import { useSelector, useDispatch } from 'react-redux';
+import { addBreadCrumb, changeLastBreadCrumb, setActiveSideNav, setActiveSocialSideNav} from "../Redux/Slicers"
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -106,37 +106,62 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const DrawerListItem = styled(ListItem, { shouldForwardProp: (prop) => prop !== 'open' })(
     ({ theme, open, active }) => ({
       display: 'block',
-      width: '90%',
+      width: '93%',
       margin: 'auto',
-      marginBottom: '5%',
       color: sideTabTextColor,
       background: 'inherit',
       borderRadius: '10px 10px 10px 10px',
+      border: `3px solid ${transparent}`,
 
       ...(active && {
         color: whiteColour,
         background: activeTabDark,
+        transition: '0.3s',
       }),
       ...(open && {
-        marginBottom: '3%'
+        marginBottom: '3%',
+        transition: '0.3s',
       }),
       ...(!open && {
-        width: '90%',
+        width: '70%',
         marginBottom: '14%',
+        transition: '0.3s',
       }),
 
       '&:hover': {
         color: whiteColour,
-        background: active ? activeTabDark : TabDark,
-        transition: '0.3s'
+        background: active ? activeTabDark : hoverTabDark,
+        transition: '0.3s',
+        border: `3px solid ${activeTabDark}`,
+        fontWeight: 'bolder',
       },
     }),
   );
 
 export default function MyNavBar(props) {
   const [open, setOpen] = React.useState(true);
-  const [activeBtn, setactiveBtn] = React.useState('');
-  const [SideNavItemList, setSideNavItemList ]= React.useState(['Inbox', 'Starred', 'Send email', 'Drafts']);
+  const [MainSideNavItemList, setMainSideNavItemList]= React.useState(null)
+  const [SideSocialNavItemList, setSideSocialNavItemList]= React.useState(null)
+
+  const dispatch= useDispatch();
+  const activePage= useSelector((state) => state.activeNav.activePage)
+  const userProfile= useSelector((state) => state.profile)
+  const activeBtn= useSelector((state) => state.activeNav.activeSideNav)
+  const activeSocialBtn= useSelector((state) => state.activeNav.activeSocialSideNav)
+  const breadcrumbData= useSelector((state) => state.system.breadcrumb)
+
+  React.useEffect(() => {
+    if(activePage && activePage.length > 1)
+      setMainSideNavItemList(getSideNavMenu(activePage, userProfile));
+      setSideSocialNavItemList(activePage === pages[0] ? SideNavSocialMenu : null);
+  },[activePage])
+
+  React.useEffect(()=>{
+    if (MainSideNavItemList){
+      dispatch(setActiveSideNav({activeSideNav: {title: MainSideNavItemList[0].title, secondary: MainSideNavItemList[0].secondary}}));
+      dispatch(addBreadCrumb({breadcrumb: MainSideNavItemList[0].title}));
+    }
+  },[MainSideNavItemList, dispatch])
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -145,6 +170,17 @@ export default function MyNavBar(props) {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  const setActiveSocialBtn= (data) => {
+    dispatch(setActiveSideNav({activeSideNav: null}));
+    dispatch(setActiveSocialSideNav({activeSocialSideNav: {title: data.title, secondary: data.secondary, link: data.link}}));
+    dispatch(changeLastBreadCrumb({title: data.title}))
+  }
+  const setActiveSideBtn= (data) => {
+    dispatch(setActiveSideNav({activeSideNav: {title: data.title, secondary: data.secondary}}));
+    dispatch(setActiveSocialSideNav({activeSocialSideNav: null}));
+    dispatch(changeLastBreadCrumb({title: data.title}))
+  }
 
   return (
     <Box sx={{ display: 'flex'}}>
@@ -181,197 +217,271 @@ export default function MyNavBar(props) {
           </div>
         </DrawerHeader>
         {/* <Divider /> */}
-        <List sx={{ backgroundColor: darkColour}}>
-          {SideNavItemList.map((text, index) => (
-            <DrawerListItem key={text} disablePadding open={open} active={activeBtn===text} onClick={e=>{setactiveBtn(text)}}>
-              <ListItemButton
-                sx={{
-                  minHeight: open ? 48 : 20,
-                  justifyContent: open ? 'initial' : 'center',
-                  px: 2.5,
-                }}
+        <List sx={{ backgroundColor: darkColour, height: '100%'}} >
+          <List sx={{ backgroundColor: darkColour}}>
+            {MainSideNavItemList && MainSideNavItemList.map((data, index) => (
+              <DrawerListItem
+                key={index}
+                disablePadding
+                open={open}
+                active={activeBtn && activeBtn.title === data.title}
+                onClick={e => setActiveSideBtn(data)}
               >
-                <ListItemIcon
-                   sx={{
-                    mr: open ? 3 : 'auto',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'inherit',
-                  }}
-                >
-                  {index % 2 === 0 ? <InboxIcon fontSize={!open ? 'medium' : 'medium'} /> : <MailIcon fontSize={!open ? 'medium' : 'medium'} />}
-                </ListItemIcon>
-                <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-              </ListItemButton>
-            </DrawerListItem>
-          ))}
-        </List>
-        <Divider />
-        <List sx={{ backgroundColor: darkColour, height: '100%'}}>
-          {/* {['All mail', 'Trash', 'Spam'].map((text, index) => ( */}
-          {SideNavItemList.map((text, index) => (
-            <DrawerListItem key={text} disablePadding open={open} active={activeBtn===text} onClick={e=>{setactiveBtn(text)}}>
               <ListItemButton
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? 'initial' : 'center',
-                  px: 2.5,
-                }}
-              >
-                <ListItemIcon
                   sx={{
-                    mr: open ? 3 : 'auto',
-                    justifyContent: 'center',
-                    color: 'inherit',
+                    padding: '3% 0% 3% 0%',
+                    minHeight: open ? 48 : 20,
+                    justifyContent: open ? 'initial' : 'center',
                   }}
                 >
-                  {index % 2 === 0 ? <InboxIcon fontSize={!open ? 'medium' : 'medium'} /> : <MailIcon fontSize={!open ? 'medium' : 'medium'} />}
-                </ListItemIcon>
-                <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-              </ListItemButton>
-            </DrawerListItem>
-          ))}
+                  <ListItemIcon
+                    sx={{
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'inherit',
+                    }}
+                  >
+                    {data.icon}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={
+                      <Typography sx={{fontWeight: 'bold' }} >
+                        {data.title}
+                      </Typography>
+                    }
+                    secondary={data.secondary &&
+                      <React.Fragment>
+                        <Typography
+                          sx={{ display: 'inline' }}
+                          component="span"
+                          variant="body2"
+                          color= {activeBtn && activeBtn.title === data.title ? whiteColour : sideTabTextColor}
+                        >
+                          {data.secondary}
+                        </Typography>
+                      </React.Fragment>
+                    }
+                    sx={{
+                      padding: '0%',
+                      margin: '0%',
+                      opacity: open ? 1 : 0
+                    }}
+                  />
+                </ListItemButton>
+              </DrawerListItem>
+            ))}
+          </List>
+
+          <Divider color={hoverTabDark} sx={{paddingTop: '0.3%'}} />
+
+          <List sx={{ backgroundColor: darkColour, marginTop: '7%'}}>
+            {SideSocialNavItemList && SideSocialNavItemList.map((data, index) => (
+              <DrawerListItem
+                key={index}
+                disablePadding
+                open={open}
+                active={activeSocialBtn &&activeSocialBtn.title === data.title}
+                onClick={e => setActiveSocialBtn(data)}
+              >
+                <ListItemButton
+                  sx={{
+                    padding: '2% 0% 2% 0%',
+                    minHeight: open ? 48 : 20,
+                    justifyContent: open ? 'initial' : 'center',
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'inherit',
+                    }}
+                  >
+                    {getIcon(data.title)}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={
+                      <Typography sx={{fontWeight: 'bold' }} >
+                        {data.title}
+                      </Typography>
+                    }
+                    secondary={data.secondary &&
+                      <React.Fragment>
+                        <Typography
+                          sx={{ display: 'inline' }}
+                          component="span"
+                          variant="body2"
+                          color= {activeSocialBtn && activeSocialBtn.title === data.title ? whiteColour : sideTabTextColor}
+                        >
+                          {data.secondary}
+                        </Typography>
+                      </React.Fragment>
+                    }
+                    sx={{
+                      padding: '0%',
+                      margin: '0%',
+                      opacity: open ? 1 : 0
+                    }}
+                  />
+                </ListItemButton>
+              </DrawerListItem>
+            ))}
+          </List>
         </List>
       </Drawer>
+
       <DrawerContainer component="main" >
         <div>
             <DrawerHeader />
-            <CollapsedBreadcrumbs />
-            <DrawerContent>
-              <Typography paragraph>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-              tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non
-              enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
-              imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus.
-              Convallis convallis tellus id interdum velit laoreet id donec ultrices.
-              Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-              adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra
-              nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum
-              leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt lobortis
-              feugiat vivamus at augue. At augue eget arcu dictum varius duis at
-              consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa
-              sapien faucibus et molestie ac.
-              </Typography>
-              <Typography paragraph>
-              Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper
-              eget nulla facilisi etiam dignissim diam. Pulvinar elementum integer enim
-              neque volutpat ac tincidunt. Ornare suspendisse sed nisi lacus sed viverra
-              tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis
-              sed odio morbi. Euismod lacinia at quis risus sed vulputate odio. Morbi
-              tincidunt ornare massa eget egestas purus viverra accumsan in. In hendrerit
-              gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem
-              et tortor. Habitant morbi tristique senectus et. Adipiscing elit duis
-              tristique sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
-              eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
-              posuere sollicitudin aliquam ultrices sagittis orci a.
-              </Typography><Typography paragraph>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-              tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non
-              enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
-              imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus.
-              Convallis convallis tellus id interdum velit laoreet id donec ultrices.
-              Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-              adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra
-              nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum
-              leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt lobortis
-              feugiat vivamus at augue. At augue eget arcu dictum varius duis at
-              consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa
-              sapien faucibus et molestie ac.
-              </Typography>
-              <Typography paragraph>
-              Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper
-              eget nulla facilisi etiam dignissim diam. Pulvinar elementum integer enim
-              neque volutpat ac tincidunt. Ornare suspendisse sed nisi lacus sed viverra
-              tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis
-              sed odio morbi. Euismod lacinia at quis risus sed vulputate odio. Morbi
-              tincidunt ornare massa eget egestas purus viverra accumsan in. In hendrerit
-              gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem
-              et tortor. Habitant morbi tristique senectus et. Adipiscing elit duis
-              tristique sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
-              eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
-              posuere sollicitudin aliquam ultrices sagittis orci a.
-              </Typography><Typography paragraph>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-              tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non
-              enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
-              imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus.
-              Convallis convallis tellus id interdum velit laoreet id donec ultrices.
-              Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-              adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra
-              nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum
-              leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt lobortis
-              feugiat vivamus at augue. At augue eget arcu dictum varius duis at
-              consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa
-              sapien faucibus et molestie ac.asdf2
-              </Typography>
-              <Typography paragraph>
-              Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper
-              eget nulla facilisi etiam dignissim diam. Pulvinar elementum integer enim
-              neque volutpat ac tincidunt. Ornare suspendisse sed nisi lacus sed viverra
-              tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis
-              sed odio morbi. Euismod lacinia at quis risus sed vulputate odio. Morbi
-              tincidunt ornare massa eget egestas purus viverra accumsan in. In hendrerit
-              gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem
-              et tortor. Habitant morbi tristique senectus et. Adipiscing elit duis
-              tristique sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
-              eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
-              posuere sollicitudin aliquam ultrices sagittis orci a.
-              </Typography>
-              <Typography paragraph>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-              tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non
-              enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
-              imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus.
-              Convallis convallis tellus id interdum velit laoreet id donec ultrices.
-              Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-              adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra
-              nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum
-              leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt lobortis
-              feugiat vivamus at augue. At augue eget arcu dictum varius duis at
-              consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa
-              sapien faucibus et molestie ac.sadf
-              </Typography>
-              <Typography paragraph>
-              Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper
-              eget nulla facilisi etiam dignissim diam. Pulvinar elementum integer enim
-              neque volutpat ac tincidunt. Ornare suspendisse sed nisi lacus sed viverra
-              tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis
-              sed odio morbi. Euismod lacinia at quis risus sed vulputate odio. Morbi
-              tincidunt ornare massa eget egestas purus viverra accumsan in. In hendrerit
-              gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem
-              et tortor. Habitant morbi tristique senectus et. Adipiscing elit duis
-              tristique sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
-              eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
-              posuere sollicitudin aliquam ultrices sagittis orci a.
-              </Typography>
-              <Typography paragraph>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-              tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non
-              enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
-              imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus.
-              Convallis convallis tellus id interdum velit laoreet id donec ultrices.
-              Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-              adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra
-              nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum
-              leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt lobortis
-              feugiat vivamus at augue. At augue eget arcu dictum varius duis at
-              consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa
-              sapien faucibus et molestie ac.sadf
-              </Typography>
-              <Typography paragraph>
-              Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper
-              eget nulla facilisi etiam dignissim diam. Pulvinar elementum integer enim
-              neque volutpat ac tincidunt. Ornare suspendisse sed nisi lacus sed viverra
-              tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis
-              sed odio morbi. Euismod lacinia at quis risus sed vulputate odio. Morbi
-              tincidunt ornare massa eget egestas purus viverra accumsan in. In hendrerit
-              gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem
-              et tortor. Habitant morbi tristique senectus et. Adipiscing elit duis
-              tristique sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
-              eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
-              posuere sollicitudin aliquam ultrices sagittis orci a.
-              </Typography>
-            </DrawerContent>
+            <CollapsedBreadcrumbs data={breadcrumbData} />
+            { activeSocialBtn &&
+              <DrawerContent style={{minHeight: '100%'}}>
+                <iframe
+                  src="https://fonts.google.com/icons?icon.set=Material+Icons&icon.query=dashb"
+                  style={{width: '100%', height: '100%'}}
+                  title={activeSocialBtn.title}
+                >
+                </iframe>
+              </DrawerContent>
+            }
+
+            { activeBtn &&
+              <DrawerContent>
+                <Typography paragraph>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+                tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non
+                enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
+                imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus.
+                Convallis convallis tellus id interdum velit laoreet id donec ultrices.
+                Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
+                adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra
+                nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum
+                leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt lobortis
+                feugiat vivamus at augue. At augue eget arcu dictum varius duis at
+                consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa
+                sapien faucibus et molestie ac.
+                </Typography>
+                <Typography paragraph>
+                Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper
+                eget nulla facilisi etiam dignissim diam. Pulvinar elementum integer enim
+                neque volutpat ac tincidunt. Ornare suspendisse sed nisi lacus sed viverra
+                tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis
+                sed odio morbi. Euismod lacinia at quis risus sed vulputate odio. Morbi
+                tincidunt ornare massa eget egestas purus viverra accumsan in. In hendrerit
+                gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem
+                et tortor. Habitant morbi tristique senectus et. Adipiscing elit duis
+                tristique sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
+                eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
+                posuere sollicitudin aliquam ultrices sagittis orci a.
+                </Typography><Typography paragraph>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+                tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non
+                enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
+                imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus.
+                Convallis convallis tellus id interdum velit laoreet id donec ultrices.
+                Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
+                adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra
+                nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum
+                leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt lobortis
+                feugiat vivamus at augue. At augue eget arcu dictum varius duis at
+                consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa
+                sapien faucibus et molestie ac.
+                </Typography>
+                <Typography paragraph>
+                Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper
+                eget nulla facilisi etiam dignissim diam. Pulvinar elementum integer enim
+                neque volutpat ac tincidunt. Ornare suspendisse sed nisi lacus sed viverra
+                tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis
+                sed odio morbi. Euismod lacinia at quis risus sed vulputate odio. Morbi
+                tincidunt ornare massa eget egestas purus viverra accumsan in. In hendrerit
+                gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem
+                et tortor. Habitant morbi tristique senectus et. Adipiscing elit duis
+                tristique sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
+                eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
+                posuere sollicitudin aliquam ultrices sagittis orci a.
+                </Typography><Typography paragraph>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+                tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non
+                enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
+                imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus.
+                Convallis convallis tellus id interdum velit laoreet id donec ultrices.
+                Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
+                adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra
+                nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum
+                leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt lobortis
+                feugiat vivamus at augue. At augue eget arcu dictum varius duis at
+                consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa
+                sapien faucibus et molestie ac.asdf2
+                </Typography>
+                <Typography paragraph>
+                Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper
+                eget nulla facilisi etiam dignissim diam. Pulvinar elementum integer enim
+                neque volutpat ac tincidunt. Ornare suspendisse sed nisi lacus sed viverra
+                tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis
+                sed odio morbi. Euismod lacinia at quis risus sed vulputate odio. Morbi
+                tincidunt ornare massa eget egestas purus viverra accumsan in. In hendrerit
+                gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem
+                et tortor. Habitant morbi tristique senectus et. Adipiscing elit duis
+                tristique sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
+                eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
+                posuere sollicitudin aliquam ultrices sagittis orci a.
+                </Typography>
+                <Typography paragraph>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+                tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non
+                enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
+                imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus.
+                Convallis convallis tellus id interdum velit laoreet id donec ultrices.
+                Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
+                adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra
+                nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum
+                leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt lobortis
+                feugiat vivamus at augue. At augue eget arcu dictum varius duis at
+                consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa
+                sapien faucibus et molestie ac.sadf
+                </Typography>
+                <Typography paragraph>
+                Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper
+                eget nulla facilisi etiam dignissim diam. Pulvinar elementum integer enim
+                neque volutpat ac tincidunt. Ornare suspendisse sed nisi lacus sed viverra
+                tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis
+                sed odio morbi. Euismod lacinia at quis risus sed vulputate odio. Morbi
+                tincidunt ornare massa eget egestas purus viverra accumsan in. In hendrerit
+                gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem
+                et tortor. Habitant morbi tristique senectus et. Adipiscing elit duis
+                tristique sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
+                eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
+                posuere sollicitudin aliquam ultrices sagittis orci a.
+                </Typography>
+                <Typography paragraph>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+                tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non
+                enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
+                imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus.
+                Convallis convallis tellus id interdum velit laoreet id donec ultrices.
+                Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
+                adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra
+                nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum
+                leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt lobortis
+                feugiat vivamus at augue. At augue eget arcu dictum varius duis at
+                consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa
+                sapien faucibus et molestie ac.sadf
+                </Typography>
+                <Typography paragraph>
+                Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper
+                eget nulla facilisi etiam dignissim diam. Pulvinar elementum integer enim
+                neque volutpat ac tincidunt. Ornare suspendisse sed nisi lacus sed viverra
+                tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis
+                sed odio morbi. Euismod lacinia at quis risus sed vulputate odio. Morbi
+                tincidunt ornare massa eget egestas purus viverra accumsan in. In hendrerit
+                gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem
+                et tortor. Habitant morbi tristique senectus et. Adipiscing elit duis
+                tristique sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
+                eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
+                posuere sollicitudin aliquam ultrices sagittis orci a.
+                </Typography>
+              </DrawerContent>
+            }
         </div>
       </DrawerContainer>
     </Box>
