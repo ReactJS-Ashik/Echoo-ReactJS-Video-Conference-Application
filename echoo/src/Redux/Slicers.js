@@ -1,11 +1,20 @@
-import { createSlice, nanoid } from '@reduxjs/toolkit'
+// import { createSlice, nanoid } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 import { LightTheme } from '../Utils/Constants';
 
 const initialState= {
-    activeSideNav: "",
-    activeTopNav: "",
-    themeStyle: LightTheme,
-    sideMenuList: []
+    activeNav:{
+        activeSideNav: {},
+        activeSocialSideNav: null,
+        activePage: "",
+    },
+    system: {
+        themeStyle: LightTheme,
+        breadcrumb: [],
+    },
+    profile: {
+        username: "Ashik Rai",
+    },
 }
 
 export const mainSlice = createSlice({
@@ -13,22 +22,44 @@ export const mainSlice = createSlice({
     initialState,
     reducers: {
         setAppTheme: (state, action) => {
-            state.themeStyle= action.payload.themeStyle;
+            return {...state, system: {...state.system,themeStyle: action.payload.themeStyle}}
         },
         setActiveSideNav: (state, action) => {
-            state.activeSideNav= action.payload.activeSideNav;
+            return {
+                ...state,
+                activeNav:{...state.activeNav, activeSideNav: action.payload.activeSideNav}
+            }
         },
-        setActiveTopNav: (state, action) => {
-            state.activeTopNav= action.payload.activeTopNav;
+        setActiveSocialSideNav: (state, action) => {
+            // console.trace(action.payload.activeSocialSideNav)
+            return {...state, activeNav: {...state.activeNav, activeSocialSideNav: action.payload.activeSocialSideNav} }
         },
-        getSideMenuList: (state, action) => {
-            state.sideMenuList= [{
-                id: nanoid,
-                name: "Item1"
-            }]
+        setActivePage: (state, action) => {
+            // console.log(action.payload.activePage)
+            return {...state, activeNav: {...state.activeNav, activePage: action.payload.activePage }}
+        },
+        setBreadCrumb: (state, action) => {
+            // console.trace(action.payload.breadcrumb)
+            return {...state, system: {...state.system, breadcrumb: action.payload.breadcrumb }}
+        },
+        addBreadCrumb: (state, action) => {
+            return {...state, system: {...state.system, breadcrumb: [...state.system.breadcrumb, action.payload.breadcrumb] }}
+        },
+        changeLastBreadCrumb: (state, action) => {
+            if (state.system.breadcrumb.length === 1)
+                return {...state, system: {...state.system, breadcrumb: [...state.system.breadcrumb, action.payload.title] }}
+            const tempBreadCrumb= state.system.breadcrumb.map( (data, index) => {
+                if (index === state.system.breadcrumb.length - 1)
+                    return action.payload.title
+                return data;
+            })
+            return {
+                ...state,
+                system: {...state.system, breadcrumb: tempBreadCrumb}
+            }
         }
     }
 })
 
-export const {setAppTheme, setActiveSideNav, setActiveTopNav, getSideMenuList} = mainSlice.actions
+export const {setAppTheme, setActiveSideNav, setActiveSocialSideNav, setActivePage, setBreadCrumb, addBreadCrumb, changeLastBreadCrumb} = mainSlice.actions
 export default mainSlice.reducer;

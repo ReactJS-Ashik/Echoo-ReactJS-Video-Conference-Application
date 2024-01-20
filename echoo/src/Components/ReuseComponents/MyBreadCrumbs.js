@@ -2,11 +2,11 @@ import * as React from 'react';
 import { emphasize, styled } from '@mui/material/styles';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Chip from '@mui/material/Chip';
-import HomeIcon from '@mui/icons-material/Home';
 import Typography from '@mui/material/Typography';
 import { PropTypes } from 'prop-types';
 // Constants
 import { LightTheme, lightColour, lightColour_Shade1, darkColour_Shade1 } from '../../Utils/Constants'
+import getIcon from '../../Utils/IconProvider';
 
 const StyledBreadcrumb = styled(Chip)(({ theme }) => {
   return {
@@ -31,14 +31,14 @@ function handleClick(event) {
 
 export default function CollapsedBreadcrumbs(props) {
   return (
-    <div role="presentation" style={{margin: '1.5% 0% 0.3% 2%'}}>
+    <div role="presentation" style={{margin: '3% 0% 0.3% 2%'}}>
       <Breadcrumbs maxItems={props.MaxItems} aria-label="breadcrumb">
-        <StyledBreadcrumb
+        {/* <StyledBreadcrumb
             // component="a"
             // href="#"
             label="Home"
             icon={<HomeIcon fontSize="small" />}
-        />
+        /> */}
         {props.data.map((item, index) => {
           if (index === props.data.length - 1 )
             return (
@@ -50,6 +50,7 @@ export default function CollapsedBreadcrumbs(props) {
                     href="/"
                     label={item}
                     onClick={handleClick}
+                    icon={getIcon(item)}
                   />
                 </Typography>
               )
@@ -59,6 +60,7 @@ export default function CollapsedBreadcrumbs(props) {
                 component="a"
                 href="/"
                 label={item}
+                icon={getIcon(item)}
                 onClick={handleClick}
               />
             )

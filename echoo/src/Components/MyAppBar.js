@@ -27,15 +27,14 @@ import MySnackBar from './ReuseComponents/MySnackBar';
 // Constants
 import { DarkTheme, darkColour, lightColour,
         blackColour, transparent, whiteColour,
-        grayColor, yellowColor, LightTheme } from '../Utils/Constants'
+        grayColor, yellowColor, LightTheme, drawerWidth, lightColour_Shade1, activeTabDark, hoverTabDark } from '../Utils/Constants'
+import { pages, settings } from "../Utils/Constants"
 
 // Redux imports
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { setActivePage, setBreadCrumb } from '../Redux/Slicers';
 
 
-const pages = ['Products', 'Pricing', 'Blog'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
-const drawerWidth = 240;
 
 const AppBar = styled(MuiAppBar, {
     shouldForwardProp: (prop) => prop !== 'open',
@@ -61,14 +60,16 @@ const AppBar = styled(MuiAppBar, {
 
 const AppItemBtn = styled(Button, {
     shouldForwardProp: (prop) => prop !== 'open',
-    })(({ theme }) => ({
+    })(({ theme, active}) => ({
         background: transparent,
-        color: theme.palette.mode === DarkTheme ? whiteColour : darkColour,
+        color: active ? whiteColour : theme.palette.mode === DarkTheme ? whiteColour : darkColour,
         boxShadow: 'none',
         margin: 2,
         '&:hover': {
             fontWeight: 'bold',
-            transition: '0.3s'
+            background: active ? activeTabDark : theme.palette.mode === DarkTheme ? hoverTabDark : lightColour_Shade1,
+            color: active ? whiteColour : theme.palette.mode === DarkTheme ? whiteColour : darkColour,
+            transition: '0.5s all'
         },
 }));
 
@@ -79,7 +80,14 @@ function ResponsiveAppBar(props) {
     const [anchorElUser, setAnchorElUser] = React.useState(null);
     const [SnackOpen, setSnackOpen] = React.useState(false);
 
-    const AppTheme= useSelector((state) => state.themeStyle);
+    const AppTheme= useSelector((state) => state.system.themeStyle);
+    const ActivePage= useSelector((state) => state.activeNav.activePage);
+    const dispatch= useDispatch();
+
+    React.useEffect(() => {
+        dispatch(setActivePage({activePage: pages[0]}))
+        dispatch(setBreadCrumb({breadcrumb: [pages[0]]}));
+    },[dispatch])
 
     const handleTheme = () => {
         setSnackOpen(true)
@@ -100,13 +108,16 @@ function ResponsiveAppBar(props) {
         setAnchorElUser(event.currentTarget);
     };
 
-    const handleCloseNavMenu = () => {
+    const handleCloseNavMenu = (pageName) => {
         setAnchorElNav(null);
+        dispatch(setActivePage({activePage: pageName}))
+        dispatch(setBreadCrumb({breadcrumb: [pageName]}))
     };
 
     const handleCloseUserMenu = () => {
         setAnchorElUser(null);
     };
+
     return (
         <AppBar position="fixed" open={props.openDrawer} >
             <Container maxWidth="xl" sx={{ minWidth: '100%'}}>
@@ -164,14 +175,14 @@ function ResponsiveAppBar(props) {
                                     horizontal: 'left',
                                 }}
                                 open={Boolean(anchorElNav)}
-                                onClose={handleCloseNavMenu}
+                                // onClose={handleCloseNavMenu}
                                 sx={{
                                     display: { xs: 'block', md: 'none' },
                                 }}
                             >
-                                {pages.map((page) => (
-                                    <MenuItem key={page} onClick={handleCloseNavMenu}>
-                                        <Typography textAlign="center">{page}</Typography>
+                                {pages.map((pageName) => (
+                                    <MenuItem key={pageName} onClick={e => handleCloseNavMenu(pageName)}>
+                                        <Typography textAlign="center">{pageName}</Typography>
                                     </MenuItem>
                             ))}
                             </Menu>
@@ -207,13 +218,21 @@ function ResponsiveAppBar(props) {
                         />
 
                     <Box sx={{ flexGrow: 1, mr: 25, display: { xs: 'none', md: 'flex' }, justifyItems: 'flex-end' }}>
-                        {pages.map((page) => (
+                        {pages.map((pageName) => (
                             <AppItemBtn
-                                key={page}
-                                onClick={handleCloseNavMenu}
-                                sx={{my: 2, display: 'block' }}
+                                key={pageName}
+                                onClick={(e) => {
+                                    dispatch(setActivePage({activePage: pageName}))
+                                    dispatch(setBreadCrumb({breadcrumb: [pageName]}))
+                                }}
+                                active= {ActivePage === pageName}
+                                sx={{
+                                    my: 2,
+                                    display: 'block',
+                                    fontWeight: ActivePage === pageName ? 'bold' : 'normal',
+                                    background: ActivePage === pageName ? activeTabDark : transparent}}
                             >
-                            {page}
+                            {pageName}
                             </AppItemBtn>
                         ))}
                     </Box>
