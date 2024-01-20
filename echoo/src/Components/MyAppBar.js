@@ -10,31 +10,38 @@ import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
 
 // importing Icons
+import MenuItem from '@mui/material/MenuItem';
 import { MenuFoldOutlined,MenuUnfoldOutlined } from '@ant-design/icons';
 import AppIcon from '@mui/icons-material/GraphicEq';
 import MenuIcon from '@mui/icons-material/Menu';
 import MySwitch from './ReuseComponents/MySwitch';
 import { CloseRounded, DarkModeRounded, LightModeRounded } from '@mui/icons-material';
+
+// My React Components
 import MyIcon from './ReuseComponents/MyIcon';
 import MyTypography from './ReuseComponents/MyTypography';
 import MySnackBar from './ReuseComponents/MySnackBar';
+
+// Constants
+import { DarkTheme, darkColour, lightColour,
+        blackColour, transparent, whiteColour,
+        grayColor, yellowColor, LightTheme } from '../Utils/Constants'
+
+// Redux imports
+import { useSelector } from 'react-redux';
 
 
 const pages = ['Products', 'Pricing', 'Blog'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 const drawerWidth = 240;
 
-const darkColour= '#00152a';
-const lightColour= 'white';
-
 const AppBar = styled(MuiAppBar, {
     shouldForwardProp: (prop) => prop !== 'open',
   })(({ theme, open }) => ({
-    background: theme.palette.mode === 'dark' ? darkColour : lightColour,
-    color: 'black',
+    background: theme.palette.mode === DarkTheme ? darkColour : lightColour,
+    color: blackColour,
     boxShadow: 'none',
     zIndex: theme.zIndex.drawer + 1,
     width: `calc(100% - ${theme.spacing(11)})`,
@@ -55,8 +62,8 @@ const AppBar = styled(MuiAppBar, {
 const AppItemBtn = styled(Button, {
     shouldForwardProp: (prop) => prop !== 'open',
     })(({ theme }) => ({
-        background: 'transparent',
-        color: theme.palette.mode === 'dark' ? 'white' : darkColour,
+        background: transparent,
+        color: theme.palette.mode === DarkTheme ? whiteColour : darkColour,
         boxShadow: 'none',
         margin: 2,
         '&:hover': {
@@ -65,13 +72,16 @@ const AppItemBtn = styled(Button, {
         },
 }));
 
+
+
 function ResponsiveAppBar(props) {
     const [anchorElNav, setAnchorElNav] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
     const [SnackOpen, setSnackOpen] = React.useState(false);
 
-    const handleTheme = (flag) => {
-        props.setChecked(flag)
+    const AppTheme= useSelector((state) => state.themeStyle);
+
+    const handleTheme = () => {
         setSnackOpen(true)
     }
 
@@ -79,7 +89,6 @@ function ResponsiveAppBar(props) {
         if (reason === 'clickaway') {
           return;
         }
-
         setSnackOpen(false);
       };
 
@@ -100,17 +109,16 @@ function ResponsiveAppBar(props) {
     };
     return (
         <AppBar position="fixed" open={props.openDrawer} >
-            <Container ntainer maxWidth="xl" sx={{ minWidth: '100%'}}>
+            <Container maxWidth="xl" sx={{ minWidth: '100%'}}>
                 <Toolbar disableGutters >
                     <IconButton
-                        // color= {theme.palette.mode === 'dark' ? lightColour : darkColour}
                         aria-label="open drawer"
                         onClick={props.handleDrawerOpen}
                         edge="start"
                         sx={{
                             marginRight: 5,
                             borderRadius: '0%',
-                            borderRight: '3px solid gray',
+                            borderRight: `3px solid ${grayColor}`,
                             display: { xs: 'none', md: props.openDrawer ? 'none' : 'flex' }
                             // ...(props.openDrawer && { display: 'none' }),
                         }}
@@ -118,7 +126,6 @@ function ResponsiveAppBar(props) {
                         <MenuUnfoldOutlined style={{ fontSize: '21px'}}/>
                     </IconButton>
                     <IconButton
-                        // color="inherit"
                         aria-label="close drawer"
                         onClick={props.handleDrawerClose}
                         edge="start"
@@ -126,7 +133,7 @@ function ResponsiveAppBar(props) {
                             marginRight: 5,
                             display: { xs: 'none', md: props.openDrawer ? 'flex' : 'none' },
                             borderRadius: '0%',
-                            borderRight: '3px solid gray'
+                            borderRight: `3px solid ${grayColor}`
                             // ...(!props.openDrawer && { display: 'none' }),
                         }}
                     >
@@ -141,7 +148,6 @@ function ResponsiveAppBar(props) {
                                 aria-controls="menu-appbar"
                                 aria-haspopup="true"
                                 onClick={handleOpenNavMenu}
-                                color="inherit"
                             >
                                 <MenuIcon />
                             </IconButton>
@@ -213,16 +219,16 @@ function ResponsiveAppBar(props) {
                     </Box>
 
                     <MySwitch
-                        checkIcon={<LightModeRounded sx={{color: 'yellow'}} fontSize='small'/>}
+                        checkIcon={<LightModeRounded sx={{color: yellowColor}} fontSize='small'/>}
                         unCheckIcon={<DarkModeRounded sx={{paddingBottom: '15%'}} fontSize='small'/>}
                         callback={handleTheme}
-                        checked={props.checked}
+                        checked={AppTheme === LightTheme ? true : false}
                     />
                     <MySnackBar
                         open={SnackOpen}
-                        vertical={"top"}
-                        horizontal={"right"}
-                        message={props.checked ? "Light Mode On" : "Dark Mode On"}
+                        vertical={"bottom"}
+                        horizontal={"left"}
+                        message={AppTheme === LightTheme ? "Light Mode On" : "Dark Mode On"}
                         actionIcon={<CloseRounded />}
                         handleClose={handleClose}
                     />
