@@ -23,5 +23,15 @@ export const drawerWidth            = 270;
 
 
 // Pages, Menus
-export const pages      = ['Home', 'Social Profiles', 'Blog'];
+export const SocialPageTitle        = "Social Profiles";
+export const HomePageTitle          = "Home";
+export const AboutPageTitle         = "About";
+export const BlogPageTitle          = "Blog";
+
+export const pages      = [
+    {title: HomePageTitle,             link: "home"},
+    {title: SocialPageTitle,           link: "social"},
+    {title: AboutPageTitle,            link: "about"},
+    {title: BlogPageTitle,             link: "blog"},
+]
 export const settings   = ['Profile', 'Account', 'Dashboard', 'Logout'];
