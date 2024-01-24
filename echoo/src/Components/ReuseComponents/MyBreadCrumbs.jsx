@@ -3,9 +3,10 @@ import { emphasize, styled } from '@mui/material/styles';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
+
 import { PropTypes } from 'prop-types';
 // Constants
-import { LightTheme, lightColour, lightColour_Shade1, darkColour_Shade1 } from '../../Utils/Constants'
+import { LightTheme, lightColour, lightColour_Shade1, darkColour_Shade1, grayColor } from '../../Utils/Constants'
 import getIcon from '../../Utils/IconProvider';
 
 const StyledBreadcrumb = styled(Chip)(({ theme }) => {
@@ -50,7 +51,7 @@ export default function CollapsedBreadcrumbs(props) {
                     href="/"
                     label={item}
                     onClick={handleClick}
-                    icon={getIcon(item)}
+                    icon={getIcon(item, grayColor)}
                   />
                 </Typography>
               )

@@ -21,7 +21,7 @@ export default function MySwitch(props) {
     }
 
     useEffect(() => {
-        dispatch(setAppTheme({themeStyle: checked ? LightTheme : DarkTheme})) 
+        dispatch(setAppTheme({themeStyle: checked ? LightTheme : DarkTheme}))
     }, [checked, dispatch])
 
     return (

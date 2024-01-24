@@ -47,15 +47,16 @@ export const mainSlice = createSlice({
         },
         changeLastBreadCrumb: (state, action) => {
             if (state.system.breadcrumb.length === 1)
-                return {...state, system: {...state.system, breadcrumb: [...state.system.breadcrumb, action.payload.title] }}
-            const tempBreadCrumb= state.system.breadcrumb.map( (data, index) => {
-                if (index === state.system.breadcrumb.length - 1)
-                    return action.payload.title
-                return data;
-            })
+                return {...state, system: {...state.system, breadcrumb: [...state.system.breadcrumb, action.payload.breadcrumb] }}
+
             return {
                 ...state,
-                system: {...state.system, breadcrumb: tempBreadCrumb}
+                system: {
+                    ...state.system,
+                    breadcrumb: state.system.breadcrumb.map((breadcrumbData, index) =>
+                        index === state.system.breadcrumb.length - 1 ? action.payload.breadcrumb : breadcrumbData
+                    )
+                }
             }
         }
     }

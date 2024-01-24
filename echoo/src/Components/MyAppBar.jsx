@@ -8,7 +8,6 @@ import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 
 // importing Icons
@@ -33,6 +32,7 @@ import { pages, settings } from "../Utils/Constants"
 // Redux imports
 import { useDispatch, useSelector } from 'react-redux';
 import { setActivePage, setBreadCrumb } from '../Redux/Slicers';
+import { NavLink } from 'react-router-dom';
 
 
 
@@ -58,13 +58,16 @@ const AppBar = styled(MuiAppBar, {
     }),
   }));
 
-const AppItemBtn = styled(Button, {
+const AppItemBtn = styled(NavLink, {
     shouldForwardProp: (prop) => prop !== 'open',
     })(({ theme, active}) => ({
-        background: transparent,
+        background: active ? activeTabDark : theme.palette.mode === DarkTheme ? hoverTabDark : lightColour_Shade1,
         color: active ? whiteColour : theme.palette.mode === DarkTheme ? whiteColour : darkColour,
         boxShadow: 'none',
         margin: 2,
+        padding: '1% 2% 1% 2%',
+        textDecoration: 'none',
+        borderRadius: '4px 4px 4px 4px',
         '&:hover': {
             fontWeight: 'bold',
             background: active ? activeTabDark : theme.palette.mode === DarkTheme ? hoverTabDark : lightColour_Shade1,
@@ -73,6 +76,24 @@ const AppItemBtn = styled(Button, {
         },
 }));
 
+const AppItemMenuBtn = styled(NavLink, {
+    shouldForwardProp: (prop) => prop !== 'open',
+    })(({ theme, active}) => ({
+        width: '100%',
+        background: transparent,
+        color: active ? whiteColour : theme.palette.mode === DarkTheme ? whiteColour : darkColour,
+        boxShadow: 'none',
+        margin: 2,
+        padding: '2% 4% 2% 4%',
+        textDecoration: 'none',
+        borderRadius: '4px 4px 4px 4px',
+        '&:hover': {
+            // fontWeight: 'bold',
+            // background: active ? activeTabDark : theme.palette.mode === DarkTheme ? hoverTabDark : lightColour,
+            // color: active ? whiteColour : theme.palette.mode === DarkTheme ? whiteColour : darkColour,
+            transition: '0.5s all'
+        },
+}));
 
 
 function ResponsiveAppBar(props) {
@@ -84,10 +105,6 @@ function ResponsiveAppBar(props) {
     const ActivePage= useSelector((state) => state.activeNav.activePage);
     const dispatch= useDispatch();
 
-    React.useEffect(() => {
-        dispatch(setActivePage({activePage: pages[0]}))
-        dispatch(setBreadCrumb({breadcrumb: [pages[0]]}));
-    },[dispatch])
 
     const handleTheme = () => {
         setSnackOpen(true)
@@ -110,8 +127,10 @@ function ResponsiveAppBar(props) {
 
     const handleCloseNavMenu = (pageName) => {
         setAnchorElNav(null);
-        dispatch(setActivePage({activePage: pageName}))
-        dispatch(setBreadCrumb({breadcrumb: [pageName]}))
+        if (pageName){
+            dispatch(setActivePage({activePage: pageName}))
+            dispatch(setBreadCrumb({breadcrumb: [pageName]}))
+        }
     };
 
     const handleCloseUserMenu = () => {
@@ -175,14 +194,36 @@ function ResponsiveAppBar(props) {
                                     horizontal: 'left',
                                 }}
                                 open={Boolean(anchorElNav)}
-                                // onClose={handleCloseNavMenu}
+                                onClose={e => handleCloseNavMenu(null)}
                                 sx={{
                                     display: { xs: 'block', md: 'none' },
                                 }}
                             >
                                 {pages.map((pageName) => (
-                                    <MenuItem key={pageName} onClick={e => handleCloseNavMenu(pageName)}>
-                                        <Typography textAlign="center">{pageName}</Typography>
+                                    <MenuItem
+                                        key={pageName.title}
+                                        to={`/${pageName.link}`}
+                                        sx={{
+                                            margin: 0,
+                                            borderBottom: `4px solid ${ActivePage === pageName.title ? hoverTabDark :  AppTheme === DarkTheme ? grayColor : lightColour_Shade1}`,
+                                            background: ActivePage === pageName.title ? activeTabDark : AppTheme === DarkTheme ? darkColour : lightColour,
+                                            '&hover':{
+                                            }
+                                        }}
+                                        disabled={ActivePage === pageName.title}
+                                        onClick={e => handleCloseNavMenu(pageName.title)}
+                                    >
+                                        <AppItemMenuBtn
+                                            to={`/${pageName.link}`}
+                                            key={pageName.title}
+                                            onClick={(e) => {
+                                                dispatch(setActivePage({activePage: pageName.title}))
+                                                dispatch(setBreadCrumb({breadcrumb: [pageName.title]}))
+                                            }}
+                                            active= {ActivePage === pageName.title}
+                                        >
+                                            {pageName.title}
+                                        </AppItemMenuBtn>
                                     </MenuItem>
                             ))}
                             </Menu>
@@ -220,19 +261,15 @@ function ResponsiveAppBar(props) {
                     <Box sx={{ flexGrow: 1, mr: 25, display: { xs: 'none', md: 'flex' }, justifyItems: 'flex-end' }}>
                         {pages.map((pageName) => (
                             <AppItemBtn
-                                key={pageName}
+                                to={`/${pageName.link}`}
+                                key={pageName.title}
                                 onClick={(e) => {
-                                    dispatch(setActivePage({activePage: pageName}))
-                                    dispatch(setBreadCrumb({breadcrumb: [pageName]}))
+                                    dispatch(setActivePage({activePage: pageName.title}))
+                                    dispatch(setBreadCrumb({breadcrumb: [pageName.title]}))
                                 }}
-                                active= {ActivePage === pageName}
-                                sx={{
-                                    my: 2,
-                                    display: 'block',
-                                    fontWeight: ActivePage === pageName ? 'bold' : 'normal',
-                                    background: ActivePage === pageName ? activeTabDark : transparent}}
+                                active= {ActivePage === pageName.title}
                             >
-                            {pageName}
+                                {pageName.title}
                             </AppItemBtn>
                         ))}
                     </Box>
