@@ -131,7 +131,7 @@ _Follow the below steps to run the project on you local machine._
 
 **Welcome Contributors! 🚀**
 
-Thank you for showing interest in this project and considering contributing to [ProjectName]! We appreciate your time and effort.
+Thank you for showing interest in this project and considering contributing to Echoo We appreciate your time and effort.
 Contributions are what makes the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
 If you have a suggestion to improve this, please fork the repo and create a pull request. You can also open an issue with the tag "enhancement".
