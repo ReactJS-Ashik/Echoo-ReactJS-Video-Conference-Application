@@ -8,33 +8,39 @@ import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
 
 // importing Icons
+import MenuItem from '@mui/material/MenuItem';
 import { MenuFoldOutlined,MenuUnfoldOutlined } from '@ant-design/icons';
 import AppIcon from '@mui/icons-material/GraphicEq';
 import MenuIcon from '@mui/icons-material/Menu';
 import MySwitch from './ReuseComponents/MySwitch';
 import { CloseRounded, DarkModeRounded, LightModeRounded } from '@mui/icons-material';
+
+// My React Components
 import MyIcon from './ReuseComponents/MyIcon';
 import MyTypography from './ReuseComponents/MyTypography';
 import MySnackBar from './ReuseComponents/MySnackBar';
 
+// Constants
+import { DarkTheme, darkColour, lightColour,
+        blackColour, transparent, whiteColour,
+        grayColor, yellowColor, LightTheme, drawerWidth, lightColour_Shade1, activeTabDark, hoverTabDark } from '../Utils/Constants'
+import { pages, settings } from "../Utils/Constants"
 
-const pages = ['Products', 'Pricing', 'Blog'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
-const drawerWidth = 240;
+// Redux imports
+import { useDispatch, useSelector } from 'react-redux';
+import { setActivePage, setBreadCrumb } from '../Redux/Slicers';
+import { NavLink } from 'react-router-dom';
 
-const darkColour= '#00152a';
-const lightColour= 'white';
+
 
 const AppBar = styled(MuiAppBar, {
     shouldForwardProp: (prop) => prop !== 'open',
   })(({ theme, open }) => ({
-    background: theme.palette.mode === 'dark' ? darkColour : lightColour,
-    color: 'black',
+    background: theme.palette.mode === DarkTheme ? darkColour : lightColour,
+    color: blackColour,
     boxShadow: 'none',
     zIndex: theme.zIndex.drawer + 1,
     width: `calc(100% - ${theme.spacing(11)})`,
@@ -52,26 +58,55 @@ const AppBar = styled(MuiAppBar, {
     }),
   }));
 
-const AppItemBtn = styled(Button, {
+const AppItemBtn = styled(NavLink, {
     shouldForwardProp: (prop) => prop !== 'open',
-    })(({ theme }) => ({
-        background: 'transparent',
-        color: theme.palette.mode === 'dark' ? 'white' : darkColour,
+    })(({ theme, active}) => ({
+        background: active ? activeTabDark : theme.palette.mode === DarkTheme ? hoverTabDark : lightColour_Shade1,
+        color: active ? whiteColour : theme.palette.mode === DarkTheme ? whiteColour : darkColour,
         boxShadow: 'none',
         margin: 2,
+        padding: '1% 2% 1% 2%',
+        textDecoration: 'none',
+        borderRadius: '4px 4px 4px 4px',
         '&:hover': {
             fontWeight: 'bold',
-            transition: '0.3s'
+            background: active ? activeTabDark : theme.palette.mode === DarkTheme ? hoverTabDark : lightColour_Shade1,
+            color: active ? whiteColour : theme.palette.mode === DarkTheme ? whiteColour : darkColour,
+            transition: '0.5s all'
         },
 }));
+
+const AppItemMenuBtn = styled(NavLink, {
+    shouldForwardProp: (prop) => prop !== 'open',
+    })(({ theme, active}) => ({
+        width: '100%',
+        background: transparent,
+        color: active ? whiteColour : theme.palette.mode === DarkTheme ? whiteColour : darkColour,
+        boxShadow: 'none',
+        margin: 2,
+        padding: '2% 4% 2% 4%',
+        textDecoration: 'none',
+        borderRadius: '4px 4px 4px 4px',
+        '&:hover': {
+            // fontWeight: 'bold',
+            // background: active ? activeTabDark : theme.palette.mode === DarkTheme ? hoverTabDark : lightColour,
+            // color: active ? whiteColour : theme.palette.mode === DarkTheme ? whiteColour : darkColour,
+            transition: '0.5s all'
+        },
+}));
+
 
 function ResponsiveAppBar(props) {
     const [anchorElNav, setAnchorElNav] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
     const [SnackOpen, setSnackOpen] = React.useState(false);
 
-    const handleTheme = (flag) => {
-        props.setChecked(flag)
+    const AppTheme= useSelector((state) => state.system.themeStyle);
+    const ActivePage= useSelector((state) => state.activeNav.activePage);
+    const dispatch= useDispatch();
+
+
+    const handleTheme = () => {
         setSnackOpen(true)
     }
 
@@ -79,7 +114,6 @@ function ResponsiveAppBar(props) {
         if (reason === 'clickaway') {
           return;
         }
-
         setSnackOpen(false);
       };
 
@@ -91,26 +125,30 @@ function ResponsiveAppBar(props) {
         setAnchorElUser(event.currentTarget);
     };
 
-    const handleCloseNavMenu = () => {
+    const handleCloseNavMenu = (pageName) => {
         setAnchorElNav(null);
+        if (pageName){
+            dispatch(setActivePage({activePage: pageName}))
+            dispatch(setBreadCrumb({breadcrumb: [pageName]}))
+        }
     };
 
     const handleCloseUserMenu = () => {
         setAnchorElUser(null);
     };
+
     return (
         <AppBar position="fixed" open={props.openDrawer} >
-            <Container ntainer maxWidth="xl" sx={{ minWidth: '100%'}}>
+            <Container maxWidth="xl" sx={{ minWidth: '100%'}}>
                 <Toolbar disableGutters >
                     <IconButton
-                        // color= {theme.palette.mode === 'dark' ? lightColour : darkColour}
                         aria-label="open drawer"
                         onClick={props.handleDrawerOpen}
                         edge="start"
                         sx={{
                             marginRight: 5,
                             borderRadius: '0%',
-                            borderRight: '3px solid gray',
+                            borderRight: `3px solid ${grayColor}`,
                             display: { xs: 'none', md: props.openDrawer ? 'none' : 'flex' }
                             // ...(props.openDrawer && { display: 'none' }),
                         }}
@@ -118,7 +156,6 @@ function ResponsiveAppBar(props) {
                         <MenuUnfoldOutlined style={{ fontSize: '21px'}}/>
                     </IconButton>
                     <IconButton
-                        // color="inherit"
                         aria-label="close drawer"
                         onClick={props.handleDrawerClose}
                         edge="start"
@@ -126,7 +163,7 @@ function ResponsiveAppBar(props) {
                             marginRight: 5,
                             display: { xs: 'none', md: props.openDrawer ? 'flex' : 'none' },
                             borderRadius: '0%',
-                            borderRight: '3px solid gray'
+                            borderRight: `3px solid ${grayColor}`
                             // ...(!props.openDrawer && { display: 'none' }),
                         }}
                     >
@@ -141,7 +178,6 @@ function ResponsiveAppBar(props) {
                                 aria-controls="menu-appbar"
                                 aria-haspopup="true"
                                 onClick={handleOpenNavMenu}
-                                color="inherit"
                             >
                                 <MenuIcon />
                             </IconButton>
@@ -158,14 +194,36 @@ function ResponsiveAppBar(props) {
                                     horizontal: 'left',
                                 }}
                                 open={Boolean(anchorElNav)}
-                                onClose={handleCloseNavMenu}
+                                onClose={e => handleCloseNavMenu(null)}
                                 sx={{
                                     display: { xs: 'block', md: 'none' },
                                 }}
                             >
-                                {pages.map((page) => (
-                                    <MenuItem key={page} onClick={handleCloseNavMenu}>
-                                        <Typography textAlign="center">{page}</Typography>
+                                {pages.map((pageName) => (
+                                    <MenuItem
+                                        key={pageName.title}
+                                        to={`/${pageName.link}`}
+                                        sx={{
+                                            margin: 0,
+                                            borderBottom: `4px solid ${ActivePage === pageName.title ? hoverTabDark :  AppTheme === DarkTheme ? grayColor : lightColour_Shade1}`,
+                                            background: ActivePage === pageName.title ? activeTabDark : AppTheme === DarkTheme ? darkColour : lightColour,
+                                            '&hover':{
+                                            }
+                                        }}
+                                        disabled={ActivePage === pageName.title}
+                                        onClick={e => handleCloseNavMenu(pageName.title)}
+                                    >
+                                        <AppItemMenuBtn
+                                            to={`/${pageName.link}`}
+                                            key={pageName.title}
+                                            onClick={(e) => {
+                                                dispatch(setActivePage({activePage: pageName.title}))
+                                                dispatch(setBreadCrumb({breadcrumb: [pageName.title]}))
+                                            }}
+                                            active= {ActivePage === pageName.title}
+                                        >
+                                            {pageName.title}
+                                        </AppItemMenuBtn>
                                     </MenuItem>
                             ))}
                             </Menu>
@@ -201,28 +259,32 @@ function ResponsiveAppBar(props) {
                         />
 
                     <Box sx={{ flexGrow: 1, mr: 25, display: { xs: 'none', md: 'flex' }, justifyItems: 'flex-end' }}>
-                        {pages.map((page) => (
+                        {pages.map((pageName) => (
                             <AppItemBtn
-                                key={page}
-                                onClick={handleCloseNavMenu}
-                                sx={{my: 2, display: 'block' }}
+                                to={`/${pageName.link}`}
+                                key={pageName.title}
+                                onClick={(e) => {
+                                    dispatch(setActivePage({activePage: pageName.title}))
+                                    dispatch(setBreadCrumb({breadcrumb: [pageName.title]}))
+                                }}
+                                active= {ActivePage === pageName.title}
                             >
-                            {page}
+                                {pageName.title}
                             </AppItemBtn>
                         ))}
                     </Box>
 
                     <MySwitch
-                        checkIcon={<LightModeRounded sx={{color: 'yellow'}} fontSize='small'/>}
+                        checkIcon={<LightModeRounded sx={{color: yellowColor}} fontSize='small'/>}
                         unCheckIcon={<DarkModeRounded sx={{paddingBottom: '15%'}} fontSize='small'/>}
                         callback={handleTheme}
-                        checked={props.checked}
+                        checked={AppTheme === LightTheme ? true : false}
                     />
                     <MySnackBar
                         open={SnackOpen}
-                        vertical={"top"}
-                        horizontal={"right"}
-                        message={props.checked ? "Light Mode On" : "Dark Mode On"}
+                        vertical={"bottom"}
+                        horizontal={"left"}
+                        message={AppTheme === LightTheme ? "Light Mode On" : "Dark Mode On"}
                         actionIcon={<CloseRounded />}
                         handleClose={handleClose}
                     />

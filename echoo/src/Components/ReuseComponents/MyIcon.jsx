@@ -1,13 +1,12 @@
 import { ClosedCaption } from '@mui/icons-material';
 import { IconButton, styled } from '@mui/material';
 import { PropTypes } from 'prop-types';
-
-const darkColour= '#00152a';
-const lightColour= 'white';
+// Constants
+import { LightTheme, lightColour, darkColour } from '../../Utils/Constants'
 
 const StyledThemeIcon = styled(IconButton)(({ theme }) => {
     const backgroundColor =
-      theme.palette.mode === 'light'
+      theme.palette.mode === LightTheme
         ? lightColour
         : darkColour;
 });
@@ -30,10 +29,11 @@ export default function MyIcon(props) {
 MyIcon.propTypes={
     themeIcon: PropTypes.bool,
     icon: PropTypes.element.isRequired,
-    mystyle: PropTypes.string,
+    mystyle: PropTypes.object,
 }
 
 MyIcon.defaultProps= {
     themeIcon: true,
-    icon: <ClosedCaption />
+    icon: <ClosedCaption />,
+    mystyle: {}
 }

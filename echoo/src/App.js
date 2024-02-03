@@ -1,31 +1,38 @@
 import { ThemeProvider } from '@mui/material';
 import './App.css';
-import Navbar from './Components/Navbar';
 import { CssBaseline, createTheme } from '@mui/material';
 import React from 'react'
+// Redux Imports
+import { useSelector } from 'react-redux';
+
+// My React Components
+import Navbar from './Components/Navbar';
+
+// Constants
+import { DarkTheme, LightTheme } from './Utils/Constants'
 
 function App() {
   const appName= "Echoo"
-  // Later change this to reactive variable
-  const [checked, setChecked]= React.useState(true)
+  const AppTheme= useSelector((state) => state.system.themeStyle)
 
   // Define light and dark themes
-  const lightTheme = createTheme({
+  const createLightTheme = createTheme({
       palette: {
-          mode: 'light',
+          mode: LightTheme,
       },
   });
 
-  const darkTheme = createTheme({
+  const createDarkTheme = createTheme({
       palette: {
-          mode: 'dark',
+          mode: DarkTheme,
       },
   });
   return (
-    <ThemeProvider theme={checked ? lightTheme : darkTheme}>
+    <ThemeProvider theme={AppTheme === LightTheme ? createLightTheme : createDarkTheme}>
       <CssBaseline />
       <div className="App">
-        <Navbar appName={appName} checked={checked} setChecked={setChecked} />
+        <Navbar appName={appName}/>
+        {/* <Navbar appName={appName} checked={checked} setChecked={setChecked} /> */}
       </div>
     </ThemeProvider>
   );
